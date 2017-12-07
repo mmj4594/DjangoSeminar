@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.views import generic
 
@@ -43,6 +43,13 @@ def vote(request, question_id):
 def get_quesryset(self):
     return Question.objects.filter(pub_date__lte = timezone.now()).order_by('-pub__date')[:5]
 
+def resultData(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    choices = question.choice_set.all()
+    votes = [choice.votes for choice in choices]
+    return JsonResponse({'votes': votes})
+
+
 class IndexView(generic.ListView):
     template_name = 'polls/index.html'
     context_object_name = 'latest_question_list'
@@ -59,5 +66,3 @@ class DetailView(generic.DetailView):
 class ResultsView(generic.DetailView):
     model = Question
     template_name = 'polls/results.html'
-
-

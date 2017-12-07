@@ -1,9 +1,30 @@
 <h1>{{question.question_text}}</h1>
-
+<p>/polls/{{question.id}}/resultData</p>
 <ul>
  {% for choice in question.choice_set.all %}
-	<li>{{choice.choice_text}} -- {{choice.votes}} vote {{choice.votes|pluralize}}</li>
+ <li>{{choice.choice_text}} -- <span id="choice{{ choice.id }}">{{choice.votes}} vote {{choice.votes|pluralize}}</span></li>
  {% endfor %}
 </ul>
 
 <a href="{% url 'polls:detail' question.id %}">Vote again?</a>
+
+<script src="http://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+
+<script>
+function update() {
+	$.ajax({
+		url: '/polls/{{ question.id }}/resultData/',
+		dataType: 'json',
+		success: function(data){
+			for(i=0; i < data['votes'].length; i++){
+				var str = data['votes'][i] + " vote";
+				if(data['votes'][i] > 1)
+					str += " s";
+				$("#choice"+ (i+4)).html(str);
+				console.log(document.getElementById('choice1'));	
+			}
+		}
+	});
+}
+setInterval(update, 1000);
+</script>
